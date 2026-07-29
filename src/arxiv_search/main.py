@@ -2,8 +2,9 @@
 
 import argparse
 import requests
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from xml.etree import ElementTree as ET
+import json
 
 
 @dataclass
@@ -62,8 +63,9 @@ def parse_papers(xml_text: str) -> list[Paper]:
     }
 
     papers: list[Paper] = []
-
+    # findall aim to find all specific element in this field
     for entry in root.findall("atom:entry", ns):
+        #find is aim to find the first one specific element in the son field ,text() aim to get the content of element text,get() access the attributes
         title = entry.find("atom:title", ns).text
         summary = entry.find("atom:summary", ns).text
         arxiv_id = entry.find("atom:id", ns).text
@@ -102,13 +104,19 @@ def main() -> None:
     xml_result = search_arxiv(args.query, args.max_results)
     papers = parse_papers(xml_result)
 
-    for paper in papers:
-        print(f"Title: {paper.title}")
-        print(f"Authors: {', '.join(paper.authors)}")
-        print(f"Published: {paper.published}")
-        print(f"PDF: {paper.pdf_url}")
-        print(f"Summary: {paper.summary[:200]}...")
-        print("---")
+
+    if args.output is None:
+        for paper in papers:
+            print(f"Title: {paper.title}")
+            print(f"Authors: {', '.join(paper.authors)}")
+            print(f"Published: {paper.published}")
+            print(f"PDF: {paper.pdf_url}")
+            print(f"Summary: {paper.summary[:200]}...")
+            print("---")
+    else:
+        with open(args.output,"w", encoding="utf-8") as f:
+            papers_data = [asdict(paper) for paper in papers]
+            json.dump(papers_data, f, ensure_ascii=False, indent=2)
 
 # Python 惯用法:仅当文件被直接运行时执行 main(),
 # 被其他模块 import 时不执行(类似 Go main 包中 func main 的角色)
