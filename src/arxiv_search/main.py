@@ -19,7 +19,7 @@ class Paper:
     pdf_url: str
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """解析命令行参数。"""
     parser = argparse.ArgumentParser(description="Search arXiv Papers")
 
@@ -36,7 +36,7 @@ def parse_args() -> argparse.Namespace:
         "--output", default=None, help="Output file path (default: print to stdout)"
     )
 
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def search_arxiv(query: str, max_results: int, max_retries: int = 3) -> str:
@@ -144,6 +144,5 @@ def main() -> None:
 
 
 # Python 惯用法:仅当文件被直接运行时执行 main(),
-# 被其他模块 import 时不执行(类似 Go main 包中 func main 的角色)
 if __name__ == "__main__":
     main()
